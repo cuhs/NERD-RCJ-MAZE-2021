@@ -1,32 +1,46 @@
 # NERD-RCJ-MAZE-2021
 
-##Raspberry Pi Code
+## Raspberry Pi Code
 
-###BFS
+### BFS
 
-####main.py
+**main.py**
 
-####everythingDetect.py
+**everythingDetect.py**
 
-####options.py
+**options.py**
 
-####packet.py
+**packet.py**
 
-####util.py
+**util.py**
 
-####victimSerial.py
+**victimSerial.py**
 
-####display.py
+**display.py**
 
-####BFS.py
+**BFS.py**
 
-####mazeToText.py
+**mazeToText.py**
 
-##Arduino MegaPi Code
+### IO
 
-####global_vars.h
+**raspPacket**
 
-####utils.ino
+**mazeInput**
 
-####main_final.ino
+**maze.png**
+
+### KNN
+
+**labelsFinal.txt**
+
+**featuresFinal.txt**
+
+## Arduino MegaPi Code
+
+**global_vars.h**
+
+**utils.ino**
+
+**main_final.ino**
 
