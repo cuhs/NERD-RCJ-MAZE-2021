@@ -1,6 +1,6 @@
 # NERD-RCJ-MAZE-2021
 
-##NERD RCJ Maze 2021 Documentation FINAL.pdf
+## NERD RCJ Maze 2021 Documentation FINAL.pdf
 Our documentation for our robot, including all hardware and software
 
 ## Raspberry Pi Code
