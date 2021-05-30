@@ -2,6 +2,7 @@ import numpy as np
 import serial
 import options
 import time
+import everythingDetect
 
 # serial port
 rate = 9600
@@ -101,6 +102,8 @@ def requestData():
     send_message = 'g'
     ser.write(bytes(send_message.encode("ascii", "ignore")))
     walls = np.zeros(5)
+    while not ser.inWaiting():
+        everythingDetect.getVideo()
     receive_message = ser.read()
     while receive_message.isdigit() is False:
         print("rms: " + str(receive_message))
