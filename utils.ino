@@ -3,13 +3,12 @@
 
 #include "global_vars.h"
 
-// This function updates motor encoder count every time goes high. Ex: going from low to high increases encoder count
-template <int PN> // PN represents an index in the object array "MegaPiPort Motor" of the motor being run
+template <int PN>
 void motorinterrupt() {
   if (ports[PN].backwards)
-    (digitalRead(ports[PN].encPin)) ? ports[PN].count++ : ports[PN].count--;
+    (digitalRead(ports[PN].NEPin)) ? ports[PN].count++ : ports[PN].count--;
   else
-    (digitalRead(ports[PN].encPin)) ? ports[PN].count-- : ports[PN].count++;
+    (digitalRead(ports[PN].NEPin)) ? ports[PN].count-- : ports[PN].count++;
 }
 
 void doTurn(char dir, int deg) {
@@ -19,20 +18,20 @@ void doTurn(char dir, int deg) {
     Serial.print(deg);
     Serial.println(" degrees.");
     while (abs(ports[0].count) < (WB / D) * deg) { //300 for 90 deg turn 600 for 180 deg turn
-      ports[RIGHT].setMotorSpeed(120);
-      ports[LEFT].setMotorSpeed(-120);
+      ports[RIGHT].run(120);
+      ports[LEFT].run(-120);
     }
   } else {
     Serial.print("Right turn ");
     Serial.print(deg);
     Serial.println(" degrees.");
     while (abs(ports[0].count) < (WB / D) * deg) { //300 for 90 deg turn 600 for 180 deg turn
-      ports[RIGHT].setMotorSpeed(-120);
-      ports[LEFT].setMotorSpeed(120);
+      ports[RIGHT].run(-120);
+      ports[LEFT].run(120);
     }
   }
-  ports[RIGHT].setMotorSpeed(0);
-  ports[LEFT].setMotorSpeed(0);
+  ports[RIGHT].run(0);
+  ports[LEFT].run(0);
 }
 
 void goForward(int dist) {
@@ -41,11 +40,11 @@ void goForward(int dist) {
   Serial.print(dist);
   Serial.println(" centimeters.");
   while (abs(ports[0].count) < (360 / (D * PI))*dist) {
-    ports[RIGHT].setMotorSpeed(120);
-    ports[LEFT].setMotorSpeed(120);
+    ports[RIGHT].run(120);
+    ports[LEFT].run(120);
   }
-  ports[RIGHT].setMotorSpeed(0);
-  ports[LEFT].setMotorSpeed(0);
+  ports[RIGHT].run(0);
+  ports[LEFT].run(0);
 }
 
 void goForwardTiles(int tiles) {
@@ -74,12 +73,12 @@ void goForwardTiles(int tiles) {
     //        //victim stuff
     //      }
     //    } else {
-    ports[RIGHT].setMotorSpeed(120);
-    ports[LEFT].setMotorSpeed(120);
+    ports[RIGHT].run(120);
+    ports[LEFT].run(120);
     //    }
   }
-  ports[RIGHT].setMotorSpeed(0);
-  ports[LEFT].setMotorSpeed(0);
+  ports[RIGHT].run(0);
+  ports[LEFT].run(0);
   delay(1000);
   //Serial.println('f');
   //Serial2.write('f');
@@ -106,8 +105,8 @@ void goForwardTiles2(int tiles) {
       Lspeed = motorSpeed + error * kp;
       Rspeed = motorSpeed - error * kp;
 
-      ports[RIGHT].setMotorSpeed(Rspeed);
-      ports[LEFT].setMotorSpeed(Lspeed);
+      ports[RIGHT].run(Rspeed);
+      ports[LEFT].run(Lspeed);
       Serial.print(Lspeed);
       Serial.print(" + ");
       Serial.println(Rspeed);
@@ -117,18 +116,18 @@ void goForwardTiles2(int tiles) {
       Lspeed = motorSpeed - error * kp;
       Rspeed = motorSpeed + error * kp;
 
-      ports[RIGHT].setMotorSpeed(Rspeed);
-      ports[LEFT].setMotorSpeed(Lspeed);
+      ports[RIGHT].run(Rspeed);
+      ports[LEFT].run(Lspeed);
       Serial.print(Lspeed);
       Serial.print(" + ");
       Serial.println(Rspeed);
     } else {
-      ports[RIGHT].setMotorSpeed(100);
-      ports[LEFT].setMotorSpeed(100);
+      ports[RIGHT].run(100);
+      ports[LEFT].run(100);
     }
   }
-  ports[RIGHT].setMotorSpeed(0);
-  ports[LEFT].setMotorSpeed(0);
+  ports[RIGHT].run(0);
+  ports[LEFT].run(0);
 }
 
 void motorControl() {
@@ -250,51 +249,51 @@ void alignLeft() {
   while (abs(getSensorReadings(3) - getSensorReadings(1)) > 0) {
     //Serial.println(abs(getSensorReadings(3) - getSensorReadings(1)));
     if (getSensorReadings(3) > getSensorReadings(1)) {
-      ports[RIGHT].setMotorSpeed(120);
-      ports[LEFT].setMotorSpeed(-120);
+      ports[RIGHT].run(120);
+      ports[LEFT].run(-120);
     }
     else {
-      ports[RIGHT].setMotorSpeed(-120);
-      ports[LEFT].setMotorSpeed(120);
+      ports[RIGHT].run(-120);
+      ports[LEFT].run(120);
     }
   }
 
-  ports[RIGHT].setMotorSpeed(0);
-  ports[LEFT].setMotorSpeed(0);
+  ports[RIGHT].run(0);
+  ports[LEFT].run(0);
 }
 
 void alignRight() {
   while (abs(getSensorReadings(4) - getSensorReadings(0)) > 0) {
     //Serial.println(abs(getSensorReadings(3) - getSensorReadings(1)));
     if (getSensorReadings(0) > getSensorReadings(4)) {
-      ports[RIGHT].setMotorSpeed(120);
-      ports[LEFT].setMotorSpeed(-120);
+      ports[RIGHT].run(120);
+      ports[LEFT].run(-120);
     }
     else {
-      ports[RIGHT].setMotorSpeed(-120);
-      ports[LEFT].setMotorSpeed(120);
+      ports[RIGHT].run(-120);
+      ports[LEFT].run(120);
     }
   }
 
-  ports[RIGHT].setMotorSpeed(0);
-  ports[LEFT].setMotorSpeed(0);
+  ports[RIGHT].run(0);
+  ports[LEFT].run(0);
 }
 
 void alignFront() {
   if (getSensorReadings(2) < 5) {
     while (getSensorReadings(2) < 5) {
-      ports[RIGHT].setMotorSpeed(-120);
-      ports[LEFT].setMotorSpeed(-120);
+      ports[RIGHT].run(-120);
+      ports[LEFT].run(-120);
     }
   } else {
     while (getSensorReadings(2) > 5) {
-      ports[RIGHT].setMotorSpeed(120);
-      ports[LEFT].setMotorSpeed(120);
+      ports[RIGHT].run(120);
+      ports[LEFT].run(120);
     }
   }
 
-  ports[RIGHT].setMotorSpeed(0);
-  ports[LEFT].setMotorSpeed(0);
+  ports[RIGHT].run(0);
+  ports[LEFT].run(0);
 }
 
 void alignRobot() {
