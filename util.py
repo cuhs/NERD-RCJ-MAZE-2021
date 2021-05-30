@@ -53,13 +53,13 @@ def setWalls():
         adjustedDirections = adjustDirections(direction)
     else:
         adjustedDirections = adjustDirections(N)
-    if sensorData[N] == 1:
+    if sensorData[N] == 1 and maze[tile][adjustedDirections[N]] == 0:
         maze[tile][adjustedDirections[N]] = 1
-    if sensorData[E] == 1:
+    if sensorData[E] == 1 and maze[tile][adjustedDirections[E]] == 0:
         maze[tile][adjustedDirections[E]] = 1
-    if sensorData[S] == 1:
+    if sensorData[S] == 1 and maze[tile][adjustedDirections[S]] == 0:
         maze[tile][adjustedDirections[S]] = 1
-    if sensorData[W] == 1:
+    if sensorData[W] == 1 and maze[tile][adjustedDirections[W]] == 0:
         maze[tile][adjustedDirections[W]] = 1
     if options.debug is True:
         print("\tTile Array: " + str(maze[tile]))
@@ -83,7 +83,9 @@ def leftTurn(facing):
         facing = W
     else:
         facing -= 1
-    packet.sData += "L90;"
+    packet.sData += "mL90;"
+    if options.inputMode == 2:
+        packet.ser.write(bytes("mL90;".encode("ascii", "ignore")))
     return facing
 
 def rightTurn(facing):
@@ -91,12 +93,16 @@ def rightTurn(facing):
         facing = N
     else:
         facing += 1
-    packet.sData += "R90;"
+    packet.sData += "mR90;"
+    if options.inputMode == 2:
+        packet.ser.write(bytes("mR90;".encode("ascii", "ignore")))
     return facing
 
 # send forward message
-def forwardTile(cTile):
-    packet.sData += "FT1;"
+def forwardTile(cTile, send):
+    if options.inputMode == 2 and send:
+        packet.ser.write(bytes("mFT1;".encode("ascii", "ignore")))
+    packet.sData += "mFT1;"
     if direction is N:
         return northTile(cTile)
     if direction is E:
@@ -105,3 +111,11 @@ def forwardTile(cTile):
         return southTile(cTile)
     if direction is W:
         return westTile(cTile)
+
+def setBlackTile(cTile):
+    for x in range(5):
+        maze[cTile][x] = 1
+    maze[northTile(cTile)][S] = 1
+    maze[eastTile(cTile)][W] = 1
+    maze[southTile(cTile)][N] = 1
+    maze[westTile(cTile)][E] = 1
