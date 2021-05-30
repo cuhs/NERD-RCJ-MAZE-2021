@@ -1,9 +1,32 @@
 import cv2
 import numpy as np
+import util
+import packet
 import time
 
-PIcap = cv2.VideoCapture(0)
-USBcap = cv2.VideoCapture(1)
+capIndex1 = 0
+capIndex2 = 0
+
+def setupCamera():
+    print("hanging")
+    for x in range(-1, 2):
+        print("a")
+        try:
+            PIcap = cv2.VideoCapture(x)
+            break
+        except:
+            print("index " + x + " is not correct")
+    i = x
+    for x in range(-1, 2):
+        print("b")
+        try:
+            USBcap = cv2.VideoCapture(x)
+            return i, x
+        except:
+            print("index " + x + " is not correct")
+            
+PIcap = cv2.VideoCapture(1)
+USBcap = cv2.VideoCapture(-1)
 
 PIcap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
 PIcap.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
@@ -11,22 +34,23 @@ PIcap.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
 USBcap.set(cv2.CAP_PROP_FRAME_WIDTH, 320)
 USBcap.set(cv2.CAP_PROP_FRAME_HEIGHT, 240)
 
+
 knn = cv2.ml.KNearest_create()
 
 height = 30 
 width = 30 
 
-features = np.loadtxt("/home/pi/Documents/KNN/trainingData/featuresFinal.txt", dtype = np.float32)
-labels = np.loadtxt("/home/pi/Documents/KNN/trainingData/labelsFinal.txt",dtype = np.float32)
+features = np.loadtxt("/home/pi/Documents/KNN/trainingData/featuresFinal.txt", dtype=np.float32)
+labels = np.loadtxt("/home/pi/Documents/KNN/trainingData/labelsFinal.txt", dtype=np.float32)
 
-knn.train(features,cv2.ml.ROW_SAMPLE,labels)
+knn.train(features, cv2.ml.ROW_SAMPLE, labels)
 
 
-red = [(0,70,50),(10,255,255)]
+red = [(0, 70, 50), (10, 255, 255)]
 
-green = [(30,60,50),(80,255,255)]
+green = [(30, 60, 50), (80, 255, 255)]
 
-yellow = [(0,100,100),(50,255,255)]
+yellow = [(0, 100, 100), (50, 255, 255)]
 
 colorRange = red,green,yellow
 colorName = ["red","green","yellow"]
@@ -43,8 +67,8 @@ def detectAll():
     if(PIcap.isOpened):
         
         #print("working")
-        #for x in range(50):    
-        ret, frame = PIcap.read()
+        for x in range(5):    
+            ret, frame = PIcap.read()
             
         frame = cv2.flip(frame,-1)
                     
@@ -165,8 +189,8 @@ def detectAll():
                     
     if(USBcap.isOpened):
         
-        #for x in range(50):          
-        ret2, frame2 = USBcap.read()
+        for x in range(5):          
+            ret2, frame2 = USBcap.read()
                     
         if(ret2 > 0):
             
@@ -281,8 +305,8 @@ def detectAll():
                         if result2 == 'U':
                             USBpackages = 0
         
-    cv2.imshow("Pi",frame)
-    cv2.imshow("Usb",frame2)
+    cv2.imshow("Pi", frame)
+    cv2.imshow("Usb", frame2)
     
     cv2.waitKey(1)
                             
@@ -299,3 +323,30 @@ def detectAll():
     
 #while True:
     #print(detectAll())
+
+def sendVictims():
+    util.maze[util.tile][util.visited] = 2
+    for x in range(3):
+        right, packageR, left, packageL = detectAll()
+    print("HERE:", left, packageL, right, packageR)
+
+    if left is True or right is True:
+        util.maze[util.tile][util.visited] = 2
+        
+        packet.ser.write(bytes('v'.encode("ascii", "ignore")))
+
+
+        if left is True:
+            send_message1 = "L" + str(packageL)
+            print(send_message1)
+            packet.ser.write(bytes(send_message1.encode("ascii", "ignore")))
+
+        if right is True:
+            send_message2 = "R" + str(packageR)
+            print(send_message2)
+            packet.ser.write(bytes(send_message2.encode("ascii", "ignore")))
+
+def getVideo():
+    PIcap.read()
+    USBcap.read()
+    time.sleep(0.01)
