@@ -38,33 +38,40 @@ VL53L0X_RangingMeasurementData_t measure;
 // I2C address of MUX
 #define TCAADDR 0x70
 
-// MegaPi encoder class code
 class MegaPiPort: public MeMegaPiDCMotor {
   public:
-    // Volatile used on class variables to read them from memory in case they changed since the last read
-    bool  backwards; // For when the motor needs to be reversed
-    volatile uint8_t port; // Motor port connected to MegaPi
-    volatile uint8_t intPin; // Interrupt pin used with motor
-    volatile uint8_t encPin; // Encoder pin for motor port
-    volatile long    count; // Encoder count
-
-    // Constructor
-    MegaPiPort(uint8_t port_num, uint8_t interupt_pin, uint8_t encoder_pin)
-      : MeMegaPiDCMotor(port_num), port(port_num), intPin(interupt_pin), encPin(encoder_pin), backwards(false) { };
-
-    // Sets the speed of the motors
-    inline void setMotorSpeed(int16_t spd) {
-      // Set motor speed
-      int true_speed = (backwards) ? -spd : spd;
-      // Run specified speed
-      MeMegaPiDCMotor::run(true_speed);
+    bool  backwards;
+    volatile uint8_t port;
+    volatile uint8_t intPin;
+    volatile uint8_t NEPin;
+    volatile long    count;
+    volatile int16_t  speed;
+    MegaPiPort(uint8_t p, uint8_t i, uint8_t n): MeMegaPiDCMotor(p), port(p), intPin(i), NEPin(n), backwards(false) { };
+    inline void run(int16_t s) {
+      int ts = (backwards) ? -s : s;
+      MeMegaPiDCMotor::run(ts);
+      speed = s;
     };
+    inline void reverse() {
+      speed = -speed;
+      run(speed);
+    };
+    inline void changespeed(int x) {
+      run (speed + x);
+    }
+    inline void resetcount() {
+      count = 0;
+    }
 };
 
 // ports[0] = port1 on the board
-volatile  MegaPiPort ports[] = { {PORT1B, 18, 31}, {PORT2B, 19, 38}, {PORT3B, 3, 49}, {PORT4B, 2, A1}};
+volatile  MegaPiPort ports[] = { {PORT1B, 18, 31},
+  {PORT2B, 19, 38},
+  {PORT3B, 3, 49},
+  {PORT4B, 2, A1}
+};
 
-// macro to attach the interrupt to the port
+// macro to attach the interrupt to the port  (remember index = port-1 so port1 has an index of 0
 #define INIT_INTERRUPT(index)   attachInterrupt(digitalPinToInterrupt(ports[index].intPin), motorinterrupt<index>, RISING)
 
 #define LEFT 1
